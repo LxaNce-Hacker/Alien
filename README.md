@@ -13,8 +13,8 @@ Alien is a online real time hosting server 😉
 ```$ chmod +x Alien.sh```<br>
 ```$ ./Alien.sh```<br>
 
-## Workflow 👇
+<!--## Workflow 👇
 <br>
 <p align="center">
   <img src=".img/Alien.png.png">
-</p>
+</p>-->
