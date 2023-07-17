@@ -11,7 +11,7 @@ Alien is a online real time hosting server 😉
 ## Running Process 👇
 ```$ cd Alien```<br>
 ```$ chmod +x Alien.sh```<br>
-```$ bash Alien.sh```<br>
+```$ ./Alien.sh```<br>
 
 ## Workflow 👇
 <br>
