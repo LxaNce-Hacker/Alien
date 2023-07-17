@@ -385,7 +385,7 @@ server_menu() {
 main_menu() {
 	{ clear; banner; echo; }
 	cat <<- EOF
-		${RED}[${WHITE}::${RED}]${ORANGE}		Select An Option	${RED}[${WHITE}::${RED}]${ORANGE}
+		${RED}[${WHITE}::${RED}]${ORANGE} Select An Option ${RED}[${WHITE}::${RED}]${ORANGE}
 		${GREEN}**********************************************************************************************************************
 		${RED}[${WHITE}01${RED}]${ORANGE} Start      ${RED}[${WHITE}0${RED}]${ORANGE} Exit
 		${RED}[${WHITE}99${RED}]${ORANGE} About Me     
