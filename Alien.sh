@@ -412,6 +412,5 @@ main_menu() {
 ## Main
 kill_pid
 dependencies
-check_status
 install_cloudflared
 main_menu
