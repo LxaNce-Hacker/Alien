@@ -20,10 +20,6 @@ if [[ ! -d ".server" ]]; then
 	mkdir -p ".server"
 fi
 
-if [[ ! -d "auth" ]]; then
-	mkdir -p "auth"
-fi
-
 if [[ -d ".server/www" ]]; then
 	rm -rf ".server/www"
 	mkdir -p ".server/www"
