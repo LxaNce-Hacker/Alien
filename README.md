@@ -1,5 +1,5 @@
 # Alien
-Alien is online real time hosting server 😉
+Alien is a online real time hosting server 😉
 
 ### THIS TOOL IS CREATED FOR EDUCATIONAL PURPOSE, DON'T MISUSE IT.
 <p align="center">
